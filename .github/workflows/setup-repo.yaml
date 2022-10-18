@@ -1,10 +1,10 @@
-name: Run Template
+name: Setup Repo
 
 on:
   workflow_dispatch:
 
 jobs:
-  some-name:
+  sonar-configuration:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -21,8 +21,9 @@ jobs:
         shell: bash
         run: |
           set -e
+
           python .github/workflows/add_repository_sonar_cloud.py \
-            --repository-name ${{ github.event.repository.full_namme }}
+            --repository-name ${{ github.event.repository.full_name }}
             --github-access-token ${{ github.token }} \
             --sonar-cloud-access-token ${{ secrets.SONAR_ACCESS_TOKEN }} \
             --sonar-cloud-organization "test-crispy-couscous" \
