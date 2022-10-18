@@ -19,7 +19,7 @@ def _enable_github_sonar_integration(github_access_token, repository_name, insta
     repository_id = repository.id
 
     # This is not available in GitHub Python Library
-    print(f"Adding the repository {repository_name} to installation ID {installation_id}")
+    print(f"Adding the repository {repository_name}|{repository_id} to installation ID {installation_id}")
     headers = {"Authorization": f"token {github_access_token}", "Accept": "application/vnd.github.v3+json"}
     url = f"https://api.github.com/user/installations/{installation_id}/repositories/{repository_id}"
     result = requests.put(url, headers=headers)
