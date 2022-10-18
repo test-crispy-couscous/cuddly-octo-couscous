@@ -19,13 +19,15 @@ jobs:
 
       - name: Add SonarCloud project
         shell: bash
+        env:
+          sonar_cloud_access_token: ${{ secrets.SONAR_ACCESS_TOKEN }}
         run: |
           set -e
 
           python .github/workflows/add_repository_sonar_cloud.py \
             --repository-name ${{ github.event.repository.full_name }} \
             --github-access-token ${{ github.token }} \
-            --sonar-cloud-access-token ${{ secrets.SONAR_ACCESS_TOKEN }} \
+            --sonar-cloud-access-token "$sonar_cloud_access_token" \
             --sonar-cloud-organization "test-crispy-couscous" \
             --installation-id 28005684 \
             --sonar-cloud-quality-gate-id 70954
