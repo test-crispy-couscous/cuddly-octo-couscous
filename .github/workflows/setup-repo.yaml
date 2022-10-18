@@ -19,7 +19,7 @@ jobs:
         shell: bash
         run: |
           set -e
-          python ./.github/workflows/add_repository_sonar_cloud.py \
+          python .github/workflows/add_repository_sonar_cloud.py \
             --repository-name ${{ github.event.repository.full_namme }}
             --github-access-token ${{ github.token }} \
             --sonar-cloud-access-token ${{ secrets.SONAR_ACCESS_TOKEN }} \
