@@ -4,44 +4,25 @@ on:
   workflow_dispatch:
 
 jobs:
-  setup:
-    name: Initilize repository
+  some-name:
     runs-on: ubuntu-latest
-    if: github.event.repository.name != 'template-with-actions'
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2.4.2
-
       - name: Setup Python Version
         uses: actions/setup-python@v2
         with:
           python-version: 3.10
 
       - name: Install Python dependencies
-        run: python -m pip install --upgrade pip SonarCloudClient
+        run: python -m pip install --upgrade requests python-sonarqube-api PyGithub
 
-      - name: Inline python step
+      - name: Add SonarCloud project
+        shell: bash
         run: |
-          import os
-          from sonarqube import SonarCloudClient
-
-          sonar_cloud_access_token = os.environ["SONAR_ACCESS_TOKEN"]
-          repository_name = os.environ["REPOSITORY_NAME"]
-          organization_key = "test-crispy-couscous"
-          quality_gate_id = 70954
-          sonar = SonarCloudClient("https://sonarcloud.io/", token=sonar_cloud_access_token)
-          project_key = f"{organization_key}_{repository_name}"
-
-          sonar.projects.create_project(
-              project=project_key,
-              name=repository_name,
-              organization=organization_key,
-          )
-          sonar.project_branches.rename_project_branch(project=project_key, name="main")
-          sonar.settings.update_setting_value(component=project_key, key="sonar.leak.period.type", value="previous_version")
-          sonar.settings.update_setting_value(component=project_key, key="sonar.branch.longLivedBranches.regex", value="develop")
-          sonar.qualitygates.select_quality_gate_for_project(organization=organization_key, projectKey=project_key, gateId=quality_gate_id)
-        shell: python
-        env:
-          REPOSITORY_NAME: ${{ github.event.repository.name }}
-          SONAR_ACCESS_TOKEN: ${{ secrets.SONAR_ACCESS_TOKEN }}
+          set -e
+          python ./.github/workflows/add_repository_sonar_cloud.py \
+            --repository-name ${{ github.event.repository.full_namme }}
+            --github-access-token ${{ github.token }} \
+            --sonar-cloud-access-token ${{ secrets.SONAR_ACCESS_TOKEN }} \
+            --sonar-cloud-organization "test-crispy-couscous" \
+            --installation-id 28005684 \
+            --sonar-cloud-quality-gate-id 70954
