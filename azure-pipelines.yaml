@@ -1,0 +1,30 @@
+trigger:
+  - main
+  - develop
+
+variables:
+  - group: sonar-github-alternative
+  - name: solution
+    value: '*.sln'
+  - name: buildPlatform
+    value: 'Any CPU'
+  - name: buildConfiguration
+    value: 'Release'
+
+steps:
+- script: dotnet tool install --global dotnet-sonarscanner
+  displayName: "dotnet-sonarscanner install"
+
+- script: dotnet sonarscanner begin /o:test-crispy-couscous /k:test-crispy-couscous_test-automation-2 /d:sonar.host.url=https://sonarcloud.io /d:sonar.login="$(SONAR_TOKEN)" /d:sonar.branch.name="$(Build.SourceBranchName)"
+  displayName: "sonar begin"
+  condition: ne(variables['Build.Reason'], 'PullRequest')
+
+- script: dotnet sonarscanner begin /o:test-crispy-couscous /k:test-crispy-couscous_test-automation-2 /d:sonar.host.url=https://sonarcloud.io /d:sonar.login="$(SONAR_TOKEN)"  /d:sonar.pullrequest.base="$(System.PullRequest.TargetBranch)" /d:sonar.pullrequest.branch="$(Build.SourceBranchName)" /d:sonar.pullrequest.key="$(System.PullRequest.PullRequestNumber)"
+  displayName: "sonar begin"
+  condition: eq(variables['Build.Reason'], 'PullRequest')
+
+- task: DotNetCoreCLI@2
+  displayName: 'dotnet build'
+
+- script: dotnet sonarscanner end /d:sonar.login="$(SONAR_TOKEN)"
+  displayName: "sonar end"
